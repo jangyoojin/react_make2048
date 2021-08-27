@@ -19,13 +19,68 @@
     font-style: normal;
 }
 
-td {
+ .block0, .block2, .block4, .block8, .block16, .block32, .block64, .block128, .block256, .block512, .block1024, .block2048  {
     width: 80px;
     height: 80px;
     margin: 10 10 10 10px;
     border-radius: 10px;
     border: solid 1px #707070;
+    font-family: SegoeUI;
+    font-size: 46px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.block0 {
     background-color: #817868;
+}
+.block2 {
+    background-color: #eee4da;
+    color: #707070;
+}
+
+.block4 {
+    background-color: #ede0c8;
+    color: #707070;
+}
+
+.block8 {
+    background-color: #f2b179;
+    color: #f5f5f5;
+}
+
+.block16 {
+    background-color: #f59563;
+    color: #f5f5f5;
+}
+
+.block32 {
+    background-color: #f67c60;
+    color: #f5f5f5;
+}
+.block64 {
+    background-color: #f65e3b;
+    color: #f5f5f5;
+}
+.block128 {
+    background-color: #edcf73;
+    color: #f5f5f5;
+}
+.block256 {
+    background-color: #edcc62;
+    color: #f5f5f5;
+}
+.block512 {
+    background-color: #edc850;
+    color: #f5f5f5;
+}
+.block1024 {
+    background-color: #edc53f;
+    color: #f5f5f5;
+}
+.block2048 {
+    background-color: #edc22d;
+    color: #f5f5f5;
 }
 
 #board {

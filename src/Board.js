@@ -3,6 +3,25 @@ import React, { Component } from 'react';
 class Board extends Component {
     constructor(props) {	
 		super(props);
+        this.state = {
+            zz : 'block0',
+            zo : 'block0',
+            zt : 'block0',
+            zth : 'block0',
+            oz : 'block0',
+            oo : 'block0',
+            ot : 'block0',
+            oth : 'block0',
+            tz : 'block0',
+            to : 'block0',
+            tt : 'block0',
+            tth : 'block0',
+            thz : 'block0',
+            tho : 'block0',
+            tht : 'block0',
+            thth : 'block0',
+            word : [,,,,,,,,,,,,,,,],
+        };
 	}
     
 	render() {
@@ -10,28 +29,28 @@ class Board extends Component {
             <div className="background">
 			    <table id='board'>
                     <tr>
-                        <td id="00"></td>
-                        <td id="01"></td>
-                        <td id="02"></td>
-                        <td id="03"></td>
+                        <td className={this.state.zz}>{this.state.word[0]}</td>
+                        <td className={this.state.zo}>{this.state.word[1]}</td>
+                        <td className={this.state.zt}>{this.state.word[2]}</td>
+                        <td className={this.state.zth}>{this.state.word[3]}</td>
                     </tr>
                     <tr>
-                        <td id="10"></td>
-                        <td id="11"></td>
-                        <td id="12"></td>
-                        <td id="13"></td>
+                        <td className={this.state.oz}>{this.state.word[4]}</td>
+                        <td className={this.state.oo}>{this.state.word[5]}</td>
+                        <td className={this.state.ot}>{this.state.word[6]}</td>
+                        <td className={this.state.oth}>{this.state.word[7]}</td>
                     </tr>
                     <tr>
-                        <td id="20"></td>
-                        <td id="21"></td>
-                        <td id="22"></td>
-                        <td id="23"></td>
+                        <td className={this.state.tz}>{this.state.word[8]}</td>
+                        <td className={this.state.to}>{this.state.word[9]}</td>
+                        <td className={this.state.tt}>{this.state.word[10]}</td>
+                        <td className={this.state.tth}>{this.state.word[11]}</td>
                     </tr>
                     <tr>
-                        <td id="30"></td>
-                        <td id="31"></td>
-                        <td id="32"></td>
-                        <td id="33"></td>
+                        <td className={this.state.thz}>{this.state.word[12]}</td>
+                        <td className={this.state.tho}>{this.state.word[13]}</td>
+                        <td className={this.state.tht}>{this.state.word[14]}</td>
+                        <td className={this.state.thth}>{this.state.word[15]}</td>
                     </tr>
             </table>
             </div>
