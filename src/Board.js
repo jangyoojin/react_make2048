@@ -24,9 +24,30 @@ class Board extends Component {
         };
 	}
     
+    //block moving function
+    moveBlocks(e) {
+        switch(e.keyCode) {
+            case 37://left
+                break;
+            case 38: //up
+                break;
+            case 39: //right
+                break;
+            case 40: //down
+                break;
+        }
+    }
+
+    //move blocks function
+    //충돌 시 병합 여부 체크하기
+    // setState하기
+    
+
+
 	render() {
 		return (
             <div className="background">
+                <input onKeyPress={this.moveBlocks} />
 			    <table id='board'>
                     <tr>
                         <td className={this.state.zz}>{this.state.word[0]}</td>
