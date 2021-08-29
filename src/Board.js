@@ -1,25 +1,27 @@
 import React, { Component } from 'react';
 
-const getRandom = (min,max) => Math.floor(Math.random()*(max-min)+min);
+const getRandom = (min, max) => Math.floor(Math.random() * (max - min) + min);
 
 class Board extends Component {
-    constructor(props) {	
-		super(props);
+    constructor(props) {
+        super(props);
         this.state = {
-            classNa: [['block0','block0','block0','block0'],
-            ['block0','block0','block0','block0'],
-            ['block0','block0','block0','block0'],
-            ['block0','block0','block0','block0']],
-            word : [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]],
+            classNa: [['block0', 'block0', 'block0', 'block0'],
+            ['block0', 'block0', 'block0', 'block0'],
+            ['block0', 'block0', 'block0', 'block0'],
+            ['block0', 'block0', 'block0', 'block0']],
+            word: [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
             key: 0,
         };
         this.NewBlock = this.NewBlock.bind(this);
         this.moveBlocks = this.moveBlocks.bind(this);
         this.moveLeft = this.moveLeft.bind(this);
-        this.moveLeft2 = this.moveLeft2.bind(this);
-	}
+        this.turnArrayImplement = this.turnArrayImplement.bind(this);
+        window.addEventListener("keydown", e => {
+            console.log("key 호출됨");
+            this.moveBlocks(e)
+        });
 
-    componentDidMount(){
         this.NewBlock();
         this.NewBlock();
     }
@@ -27,207 +29,153 @@ class Board extends Component {
     //make new blocks
     //블럭이 들어있지 않은 자리에 숫자2 블럭을 추가함
     NewBlock() {
-        var i, j;
-        do{
-            i = getRandom(0,3);
-            j = getRandom(0,3);
-        } while(this.state.classNa[i][j] !== 'block0')      
+        let i, j;
+        do {
+            i = getRandom(0, 3);
+            j = getRandom(0, 3);
+        } while (this.state.classNa[i][j] !== 'block0')
         const classNameUpdate = [...this.state.classNa];
         const wordUpdate = [...this.state.word];
         classNameUpdate[i][j] = 'block2';
         wordUpdate[i][j] = 2;
-        this.setState({classNa: classNameUpdate});
-        this.setState({word: wordUpdate});
+        this.setState({ classNa: classNameUpdate });
+        this.setState({ word: wordUpdate });
+    }
+
+    turnArray(newClassNa, newWord, count) {
+        let check = 0;
+        while (check < count) {
+            [newClassNa, newWord] = this.turnArrayImplement(newClassNa, newWord);
+            check++;
+        }
+        return [newClassNa, newWord];
+    }
+
+    turnArrayImplement(newClassNa, newWord) {
+        const turnClassNa = [[, , ,], [, , ,], [, , ,], [, , ,]];
+        const turnWord = [[, , ,], [, , ,], [, , ,], [, , ,]];
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                turnClassNa[i][j] = newClassNa[3 - j][i];
+                turnWord[i][j] = newWord[3 - j][i];
+            }
+        }
+        return [turnClassNa, turnWord];
     }
 
     //block moving function
     moveBlocks(e) {
-        switch(e.keyCode) {
+        let newClassNa, newWord;
+        switch (e.keyCode) {
             case 37://left
-                this.moveLeft2();
+                [newClassNa, newWord] = this.moveLeft([...this.state.classNa], [...this.state.word]);
                 break;
             case 38: //up
-                this.moveUp();
+                //this.moveUp2();
+                [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 3);
+                [newClassNa, newWord] = this.moveLeft(newClassNa, newWord);
+                [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 1);
                 break;
             case 39: //right
-                console.log("right");
+                // this.moveRight();
+                [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 2);
+                [newClassNa, newWord] = this.moveLeft(newClassNa, newWord);
+                [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 2);
                 break;
             case 40: //down
-                console.log("down");    
+                //this.moveDown();
+                [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 1);
+                [newClassNa, newWord] = this.moveLeft(newClassNa, newWord);
+                [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 3);
                 break;
         }
+        this.setState({ classNa: newClassNa });
+        this.setState({ word: newWord });
+        this.NewBlock();
     }
 
     //move blocks function
     //충돌 시 병합 여부 체크하기
     // setState하기
-    moveLeft() {
-        const classNameUpdate = [...this.state.classNa];
-        const wordUpdate = [...this.state.word];
-        //병합할 것들 병합하기
-        for (var i=0;i<4;i++){
-            for(var j=1;j<4;j++){
-                if(classNameUpdate[i][j] !== 'block0'){
-                    var leftest;
-                    for(leftest=col-1;leftest>0;leftest--){
-                        if(classNameUpdate[i][leftest]!=='block0'){
-                            break;
-                        }
-                    }
-                    if(classNameUpdate[i][j]===classNameUpdate[i][leftest]){
-                        if(wordUpdate[i][j] !== 0){
-                            wordUpdate[i][leftest] = wordUpdate[i][leftest]*2;
-                            classNameUpdate[i][leftest] = 'block'+wordUpdate[i][j];
-                            wordUpdate[i][j] = 0;
-                            classNameUpdate[i][j] = 'block0';
-                            j++;
-                        }
-                    }                    
-                }
-            }
-        }
-        //병합으로 생긴 빈공간 따라 이동
-        for (var row=0;row<4;row++){
-            for(var col=1;col<4;col++){
-                if(classNameUpdate[row][col] !== 'block0'){
-                    var leftest;
-                    for(leftest=col-1;leftest>0;leftest--){
-                        if(classNameUpdate[row][leftest]!=='block0'){
-                            break;
-                        }
-                    }
-                    classNameUpdate[row][leftest+1] = classNameUpdate[row][col];
-                    wordUpdate[row][leftest+1] = wordUpdate[row][col];
-                    classNameUpdate[row][col] = 'block0';
-                    wordUpdate[row][col] = 0;
-                }
-            }
-        }
-        this.setState({className: classNameUpdate});
-        this.setState({word: wordUpdate});
-        this.NewBlock();
-    }
-
-    moveUp() {
-        const classNameUpdate = [...this.state.classNa];
-        const wordUpdate = [...this.state.word];
-        //병합할 것들 병합하기
-        for (var i=0;i<4;i++){ 
-            for(var j=1;j<4;j++){
-                if(classNameUpdate[j][i] !== 'block0'){
-                    var upest;
-                    for(upest=j-1;upest>0;upest--){
-                        if(classNameUpdate[upest][i]!=='block0' || upest === 0){
-                            break;
-                        }
-                    }
-                    console.log(upest);
-                    if(classNameUpdate[j][i]===classNameUpdate[upest][i]){
-                        if(classNameUpdate[j][i] !== 0){
-                            wordUpdate[upest][i] = wordUpdate[j][i]*2;
-                            classNameUpdate[upest][i] = 'block'+wordUpdate[j][i];
-                            wordUpdate[j][i]= 0;
-                            classNameUpdate[j][i] = 'block0';
-                            j++;
-                        }
-                    }                    
-                }
-            }
-        }
-        //병합으로 생긴 빈공간 따라 이동
-        for (var col=0;col<4;col++){
-            for(var row=1;row<4;row++){
-                if(classNameUpdate[row][col] !== 'block0'){
-                    var upest;
-                    for(upest=col-1;upest>0;upest--){
-                        if(classNameUpdate[upest][col]!=='block0'){
-                            break;
-                        }
-                    }
-                    classNameUpdate[upest+1][col] = classNameUpdate[row][col];
-                    wordUpdate[upest+1][col] = wordUpdate[row][col];
-                    classNameUpdate[row][col] = 'block0';
-                    wordUpdate[row][col] = 0;
-                }
-            }
-        }
-        this.setState({className: classNameUpdate});
-        this.setState({word: wordUpdate});
-        this.NewBlock();    
-    }
-
-    moveLeft2() {
-        const classNameUpdate = [...this.state.classNa];
-        const wordUpdate = [...this.state.word];
+    moveLeft(newClassNa, newWord) {
         //병합
-        for(var i=0;i<4;i++){
+        for (var i = 0; i < 4; i++) {
             //한 줄에 병합을 두 번 하는 경우
-            if(classNameUpdate[i][0]===classNameUpdate[i][1] && classNameUpdate[i][2]===classNameUpdate[i][3]){
-                if(classNameUpdate[i][0]!=='block0'){
-                    wordUpdate[i][0] *= 2;
-                    classNameUpdate[i][0] = 'block'+wordUpdate[i][0];
-                    wordUpdate[i][1]=0;
-                    classNameUpdate[i][1] = 'block0';
-                }
-                if(classNameUpdate[i][2]!=='block0'){
-                    wordUpdate[i][2] *= 2;
-                    classNameUpdate[i][2] = 'block'+wordUpdate[i][2];
-                    wordUpdate[i][3]=0;
-                    classNameUpdate[i][3] = 'block0';
+            if (newClassNa[i][0] === newClassNa[i][1] && newClassNa[i][2] === newClassNa[i][3]) {
+                for (let c = 0; c < 2; c++) {
+                    const idx = c * 2;
+                    if (newClassNa[i][idx] !== 'block0') {
+                        // 병합
+                        newWord[i][idx] *= 2;
+                        newClassNa[i][idx] = 'block' + newWord[i][0];
+                        // 초기화
+                        newWord[i][idx + 1] = 0;
+                        newClassNa[i][idx + 1] = 'block0';
+                    }
                 }
             }
-            //한 줄에 병합 한 번 하는 경우
-            else{
-                for(var j=1;j<4;j++){
+            //한 줄에 병합 한 번 하는 경우 + 병합하는 것이 없는 경우
+            else {
+                for (var j = 1; j < 4; j++) {
                     var left;
-                    if(classNameUpdate[i][j]==='block0') continue;//빈칸이면 패스하기
-                    for(left=j-1;left>=0;left--){
-                        if(classNameUpdate[i][left]!=='block0' || left === 0) break;
+                    //빈칸이면 패스하기
+                    if (newClassNa[i][j] === 'block0') continue;
+                    // 중간에 빈 블럭이 있는지 확인
+                    for (left = j - 1; left >= 0; left--) {
+                        if (newClassNa[i][left] !== 'block0' || left === 0) break;
                     }
-                    if(classNameUpdate[i][j]===classNameUpdate[i][left]){
-                        wordUpdate[i][left] *= 2;
-                        classNameUpdate[i][left] = 'block'+wordUpdate[i][left];
-                        wordUpdate[i][j]=0;
-                        classNameUpdate[i][j] = 'block0';
+                    // left = j보다 작은 채워진 가장 가까운 blocK의 col index
+                    if (newClassNa[i][j] === newClassNa[i][left]) {
+                        newWord[i][left] *= 2;
+                        newClassNa[i][left] = 'block' + newWord[i][left];
+                        newWord[i][j] = 0;
+                        newClassNa[i][j] = 'block0';
                         break;
                     }
                 }
             }
         }
         //이동
-        for(var i=0;i<4;i++){
-            for(var j=1;j<4;j++){
+        for (var i = 0; i < 4; i++) {
+            for (var j = 1; j < 4; j++) {
                 var left;
-                if(classNameUpdate[i][j]==='block0') continue;//빈칸이면 넘어가기
-                if(classNameUpdate[i][0]==='block0'){
-                    classNameUpdate[i][0] = classNameUpdate[i][j];
-                    wordUpdate[i][0] = wordUpdate[i][j];
-                    classNameUpdate[i][j] = 'block0';
-                    wordUpdate[i][j] = 0;
+                // 빈칸이면 이동x
+                if (newClassNa[i][j] === 'block0') continue;
+                // 왼쪽 끝이 비었으면 현재값 넣어주기
+                if (newClassNa[i][0] === 'block0') {
+                    newClassNa[i][0] = newClassNa[i][j];
+                    newWord[i][0] = newWord[i][j];
+                    newClassNa[i][j] = 'block0';
+                    newWord[i][j] = 0;
+                    continue;
                 }
-                for(left=j-1;left>=0;left--){
-                    if(classNameUpdate[i][left]!=='block0' || left === 0) break;
+                for (left = j - 1; left >= 0; left--) {
+                    if (newClassNa[i][left] !== 'block0' || left === 0) break;
                 }
-                if(left !== j-1) {
-                    classNameUpdate[i][left+1] = classNameUpdate[i][j];
-                    wordUpdate[i][left+1] = wordUpdate[i][j];
-                    classNameUpdate[i][j] = 'block0';
-                    wordUpdate[i][j] = 0;
+                // left = 왼쪽 중에 비어 있지 않은 가장 큰 index
+                if (left !== j - 1) {
+                    newClassNa[i][left + 1] = newClassNa[i][j];
+                    newWord[i][left + 1] = newWord[i][j];
+                    newClassNa[i][j] = 'block0';
+                    newWord[i][j] = 0;
                 }
             }
         }
-        this.setState({classNa: classNameUpdate});
-        this.setState({word: wordUpdate});
-        this.NewBlock();
+        return [newClassNa, newWord];
     }
 
 
+    merge(arr, arr2, X, Y, x, y) {
+        arr[X][Y] *= 2;
+        arr2[X][Y] = 'block' + arr[X][Y];
+        arr[x][y] = 0;
+        arr2[x][y] = 'block0';
+    }
 
-	render() {
-        window.addEventListener("keydown", e => {set});
-		return (
+    render() {
+        return (
             <div className="background">
-			    <table id='board'>
+                <table id='board'>
                     <tr>
                         <td className={this.state.classNa[0][0]}>{this.state.word[0][0]}</td>
                         <td className={this.state.classNa[0][1]}>{this.state.word[0][1]}</td>
@@ -252,10 +200,10 @@ class Board extends Component {
                         <td className={this.state.classNa[3][2]}>{this.state.word[3][2]}</td>
                         <td className={this.state.classNa[3][3]}>{this.state.word[3][3]}</td>
                     </tr>
-            </table>
+                </table>
             </div>
-		);
-	}
+        );
+    }
 }
 
 
