@@ -16,12 +16,8 @@ class Board extends Component {
         this.NewBlock = this.NewBlock.bind(this);
         this.moveBlocks = this.moveBlocks.bind(this);
         this.moveLeft = this.moveLeft.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
         this.turnArrayImplement = this.turnArrayImplement.bind(this);
-        window.addEventListener("keydown", e => {
-            console.log("key 호출됨");
-            this.moveBlocks(e)
-        });
-
         this.NewBlock();
         this.NewBlock();
     }
@@ -29,10 +25,11 @@ class Board extends Component {
     //make new blocks
     //블럭이 들어있지 않은 자리에 숫자2 블럭을 추가함
     NewBlock() {
+        console.log('newblock');
         let i, j;
         do {
-            i = getRandom(0, 3);
-            j = getRandom(0, 3);
+            i = getRandom(0, 4);
+            j = getRandom(0, 4);
         } while (this.state.classNa[i][j] !== 'block0')
         const classNameUpdate = [...this.state.classNa];
         const wordUpdate = [...this.state.word];
@@ -42,7 +39,20 @@ class Board extends Component {
         this.setState({ word: wordUpdate });
     }
 
+    componentDidMount() {
+        window.addEventListener("keydown", this.onKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.addEventListener("keydown", this.onKeyDown);
+    }
+
+    onKeyDown(e) {
+        this.moveBlocks(e)
+    }
+
     turnArray(newClassNa, newWord, count) {
+        console.log('turnArray');
         let check = 0;
         while (check < count) {
             [newClassNa, newWord] = this.turnArrayImplement(newClassNa, newWord);
@@ -52,6 +62,7 @@ class Board extends Component {
     }
 
     turnArrayImplement(newClassNa, newWord) {
+        console.log('turnArrayImplement');
         const turnClassNa = [[, , ,], [, , ,], [, , ,], [, , ,]];
         const turnWord = [[, , ,], [, , ,], [, , ,], [, , ,]];
         for (let i = 0; i < 4; i++) {
@@ -65,6 +76,7 @@ class Board extends Component {
 
     //block moving function
     moveBlocks(e) {
+        console.log('moveblocks');
         let newClassNa, newWord;
         switch (e.keyCode) {
             case 37://left
@@ -88,16 +100,31 @@ class Board extends Component {
                 [newClassNa, newWord] = this.moveLeft(newClassNa, newWord);
                 [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 3);
                 break;
+            default:
+                return;
         }
         this.setState({ classNa: newClassNa });
         this.setState({ word: newWord });
-        this.NewBlock();
+        let isFull = true;
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                if (newClassNa[i][j] === 'block0') {
+                    isFull = false;
+                    break;
+                }
+            }
+        }
+        if (!isFull) {
+            this.NewBlock();
+        }
+
     }
 
     //move blocks function
     //충돌 시 병합 여부 체크하기
     // setState하기
     moveLeft(newClassNa, newWord) {
+        console.log('moveLeft');
         //병합
         for (var i = 0; i < 4; i++) {
             //한 줄에 병합을 두 번 하는 경우
@@ -107,7 +134,7 @@ class Board extends Component {
                     if (newClassNa[i][idx] !== 'block0') {
                         // 병합
                         newWord[i][idx] *= 2;
-                        newClassNa[i][idx] = 'block' + newWord[i][0];
+                        newClassNa[i][idx] = 'block' + newWord[i][idx];
                         // 초기화
                         newWord[i][idx + 1] = 0;
                         newClassNa[i][idx + 1] = 'block0';
@@ -135,6 +162,7 @@ class Board extends Component {
                 }
             }
         }
+        console.log('병합');
         //이동
         for (var i = 0; i < 4; i++) {
             for (var j = 1; j < 4; j++) {
@@ -161,6 +189,7 @@ class Board extends Component {
                 }
             }
         }
+        console.log('이동');
         return [newClassNa, newWord];
     }
 
@@ -173,6 +202,7 @@ class Board extends Component {
     }
 
     render() {
+        console.log('render');
         return (
             <div className="background">
                 <table id='board'>
