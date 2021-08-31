@@ -99,10 +99,19 @@
     border-radius: 10px;
     border: solid 1px #707070;
     background-color: #eae6e2;
+}
+#score{
     font-family: SegoeUI;
     font-size: 17px;
     text-align: left;
 }
+#point{
+    font-family: SegoeUI;
+    font-size: 15px;
+    text-align: left;
+    color:#817868;
+}
+
 .bestbox {
     width: 35px;
     height: 16px;

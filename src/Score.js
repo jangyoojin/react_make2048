@@ -8,12 +8,14 @@ class Score extends Component {
 	render() {
 		return (
 			<div className="TitleScore">
-				<span class="veryj">
-					<span class="text-style-1">2048</span>ver.yj
+				<span className="veryj">
+					<span className="text-style-1">2048</span>ver.yj
 				</span>
 				<span>
-					<span class="scorebox">Score</span>
-					<span class="bestbox">Best</span>
+					<span className="scorebox">Score
+						{this.props.score}</span>
+					<span className="bestbox">Best
+						{this.props.best}</span>
 				</span>
 			</div>
 		);

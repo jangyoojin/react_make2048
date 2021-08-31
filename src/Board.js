@@ -6,12 +6,8 @@ class Board extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            classNa: [['block0', 'block0', 'block0', 'block0'],
-            ['block0', 'block0', 'block0', 'block0'],
-            ['block0', 'block0', 'block0', 'block0'],
-            ['block0', 'block0', 'block0', 'block0']],
-            word: [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
-            key: 0,
+            classNa: Array(4).fill('block0').map((e) => { return Array(4).fill('block0') }),
+            word: Array(4).fill(0).map((e) => { return Array(4).fill(0) }),
         };
         this.NewBlock = this.NewBlock.bind(this);
         this.moveBlocks = this.moveBlocks.bind(this);
@@ -25,7 +21,6 @@ class Board extends Component {
     //make new blocks
     //블럭이 들어있지 않은 자리에 숫자2 블럭을 추가함
     NewBlock() {
-        console.log('newblock');
         let i, j;
         do {
             i = getRandom(0, 4);
@@ -52,7 +47,6 @@ class Board extends Component {
     }
 
     turnArray(newClassNa, newWord, count) {
-        console.log('turnArray');
         let check = 0;
         while (check < count) {
             [newClassNa, newWord] = this.turnArrayImplement(newClassNa, newWord);
@@ -62,9 +56,8 @@ class Board extends Component {
     }
 
     turnArrayImplement(newClassNa, newWord) {
-        console.log('turnArrayImplement');
-        const turnClassNa = [[, , ,], [, , ,], [, , ,], [, , ,]];
-        const turnWord = [[, , ,], [, , ,], [, , ,], [, , ,]];
+        const turnClassNa = Array(4).fill(null).map((e) => { return Array(4).fill(null) });
+        const turnWord = Array(4).fill(null).map((e) => { return Array(4).fill(null) });
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
                 turnClassNa[i][j] = newClassNa[3 - j][i];
@@ -76,28 +69,27 @@ class Board extends Component {
 
     //block moving function
     moveBlocks(e) {
-        console.log('moveblocks');
-        let newClassNa, newWord;
+        let newClassNa, newWord, point;
         switch (e.keyCode) {
             case 37://left
-                [newClassNa, newWord] = this.moveLeft([...this.state.classNa], [...this.state.word]);
+                [newClassNa, newWord, point] = this.moveLeft([...this.state.classNa], [...this.state.word]);
                 break;
             case 38: //up
                 //this.moveUp2();
                 [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 3);
-                [newClassNa, newWord] = this.moveLeft(newClassNa, newWord);
+                [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
                 [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 1);
                 break;
             case 39: //right
                 // this.moveRight();
                 [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 2);
-                [newClassNa, newWord] = this.moveLeft(newClassNa, newWord);
+                [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
                 [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 2);
                 break;
             case 40: //down
                 //this.moveDown();
                 [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 1);
-                [newClassNa, newWord] = this.moveLeft(newClassNa, newWord);
+                [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
                 [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 3);
                 break;
             default:
@@ -105,6 +97,7 @@ class Board extends Component {
         }
         this.setState({ classNa: newClassNa });
         this.setState({ word: newWord });
+        this.props.calcScore(point);
         let isFull = true;
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
@@ -116,6 +109,11 @@ class Board extends Component {
         }
         if (!isFull) {
             this.NewBlock();
+        } else {
+            //best 점수 업데이트
+            this.props.updateBest();
+            //보드 판이 가득 차면 alert 띄우기
+            alert("게임 종료: 보드가 가득 찼습니다!!");
         }
 
     }
@@ -124,7 +122,8 @@ class Board extends Component {
     //충돌 시 병합 여부 체크하기
     // setState하기
     moveLeft(newClassNa, newWord) {
-        console.log('moveLeft');
+        //추가 점수 저장할 변수
+        let point = 0;
         //병합
         for (var i = 0; i < 4; i++) {
             //한 줄에 병합을 두 번 하는 경우
@@ -138,6 +137,8 @@ class Board extends Component {
                         // 초기화
                         newWord[i][idx + 1] = 0;
                         newClassNa[i][idx + 1] = 'block0';
+                        //점수 추가
+                        point += newWord[i][idx];
                     }
                 }
             }
@@ -157,16 +158,16 @@ class Board extends Component {
                         newClassNa[i][left] = 'block' + newWord[i][left];
                         newWord[i][j] = 0;
                         newClassNa[i][j] = 'block0';
+                        point += newWord[i][left];
                         break;
                     }
                 }
             }
         }
-        console.log('병합');
         //이동
-        for (var i = 0; i < 4; i++) {
-            for (var j = 1; j < 4; j++) {
-                var left;
+        for (let i = 0; i < 4; i++) {
+            for (let j = 1; j < 4; j++) {
+                let left;
                 // 빈칸이면 이동x
                 if (newClassNa[i][j] === 'block0') continue;
                 // 왼쪽 끝이 비었으면 현재값 넣어주기
@@ -189,8 +190,7 @@ class Board extends Component {
                 }
             }
         }
-        console.log('이동');
-        return [newClassNa, newWord];
+        return [newClassNa, newWord, point];
     }
 
 
@@ -202,34 +202,35 @@ class Board extends Component {
     }
 
     render() {
-        console.log('render');
         return (
             <div className="background">
                 <table id='board'>
-                    <tr>
-                        <td className={this.state.classNa[0][0]}>{this.state.word[0][0]}</td>
-                        <td className={this.state.classNa[0][1]}>{this.state.word[0][1]}</td>
-                        <td className={this.state.classNa[0][2]}>{this.state.word[0][2]}</td>
-                        <td className={this.state.classNa[0][3]}>{this.state.word[0][3]}</td>
-                    </tr>
-                    <tr>
-                        <td className={this.state.classNa[1][0]}>{this.state.word[1][0]}</td>
-                        <td className={this.state.classNa[1][1]}>{this.state.word[1][1]}</td>
-                        <td className={this.state.classNa[1][2]}>{this.state.word[1][2]}</td>
-                        <td className={this.state.classNa[1][3]}>{this.state.word[1][3]}</td>
-                    </tr>
-                    <tr>
-                        <td className={this.state.classNa[2][0]}>{this.state.word[2][0]}</td>
-                        <td className={this.state.classNa[2][1]}>{this.state.word[2][1]}</td>
-                        <td className={this.state.classNa[2][2]}>{this.state.word[2][2]}</td>
-                        <td className={this.state.classNa[2][3]}>{this.state.word[2][3]}</td>
-                    </tr>
-                    <tr>
-                        <td className={this.state.classNa[3][0]}>{this.state.word[3][0]}</td>
-                        <td className={this.state.classNa[3][1]}>{this.state.word[3][1]}</td>
-                        <td className={this.state.classNa[3][2]}>{this.state.word[3][2]}</td>
-                        <td className={this.state.classNa[3][3]}>{this.state.word[3][3]}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td className={this.state.classNa[0][0]}>{this.state.word[0][0]}</td>
+                            <td className={this.state.classNa[0][1]}>{this.state.word[0][1]}</td>
+                            <td className={this.state.classNa[0][2]}>{this.state.word[0][2]}</td>
+                            <td className={this.state.classNa[0][3]}>{this.state.word[0][3]}</td>
+                        </tr>
+                        <tr>
+                            <td className={this.state.classNa[1][0]}>{this.state.word[1][0]}</td>
+                            <td className={this.state.classNa[1][1]}>{this.state.word[1][1]}</td>
+                            <td className={this.state.classNa[1][2]}>{this.state.word[1][2]}</td>
+                            <td className={this.state.classNa[1][3]}>{this.state.word[1][3]}</td>
+                        </tr>
+                        <tr>
+                            <td className={this.state.classNa[2][0]}>{this.state.word[2][0]}</td>
+                            <td className={this.state.classNa[2][1]}>{this.state.word[2][1]}</td>
+                            <td className={this.state.classNa[2][2]}>{this.state.word[2][2]}</td>
+                            <td className={this.state.classNa[2][3]}>{this.state.word[2][3]}</td>
+                        </tr>
+                        <tr>
+                            <td className={this.state.classNa[3][0]}>{this.state.word[3][0]}</td>
+                            <td className={this.state.classNa[3][1]}>{this.state.word[3][1]}</td>
+                            <td className={this.state.classNa[3][2]}>{this.state.word[3][2]}</td>
+                            <td className={this.state.classNa[3][3]}>{this.state.word[3][3]}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );
