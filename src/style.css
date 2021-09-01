@@ -1,12 +1,13 @@
 .TitleScore {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+    margin-top: 10%;
 }
 
 .veryj {
     width: 161px;
     height: 81px;
-    margin: 0 66px 11px 4px;
+    margin: 0 66px 0 4px;
     font-family: SegoeUI;
     font-size: 13px;
     font-style: italic;
@@ -91,36 +92,31 @@
 }
 
 
-.scorebox{  
+.boxTitle, .boxText{  
     width: 40px;
     height: 16px;
-    margin: 15px 10px 5px 10px;
-    padding: 5px 8px 49px 7px;
-    border-radius: 10px;
+    padding: 5px 8px 5px 7px;
+    border-radius: 10px 10px 0 0;
     border: solid 1px #707070;
     background-color: #eae6e2;
-}
-#score{
     font-family: SegoeUI;
-    font-size: 17px;
-    text-align: left;
-}
-#point{
-    font-family: SegoeUI;
-    font-size: 15px;
-    text-align: left;
-    color:#817868;
 }
 
-.bestbox {
-    width: 35px;
-    height: 16px;
-    margin: 15px 10px 5px 0px;
-    padding: 5px 22px 49px 20px;
-    border-radius: 10px;
-    border: solid 1px #707070;
-    background-color: #eae6e2;
+.boxTitle {
+    margin: 15px 10px 5px 10px;
+    border-radius: 10px 10px 0 0;
+    border-bottom-color:#eae6e2;
+    text-align: center;
 }
+
+.boxText{
+    margin: 0 10px 0 10px;
+    padding-bottom: 10px;
+    border-radius: 0 0 10px 10px;
+    border-top-color: #eae6e2;
+    text-align: center;
+}
+
 
 #root{
     display: flex;
@@ -135,7 +131,7 @@
     align-items: center;
     width: 45px;
     height: 30px;
-    margin: 5px 10px 10px 0;
+    margin: 0 10px 10px 0;
     border-radius: 10px;
     border: solid 1px #707070;
     background-color: #eae6e2;

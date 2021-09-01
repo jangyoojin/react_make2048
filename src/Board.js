@@ -14,6 +14,7 @@ class Board extends Component {
         this.moveLeft = this.moveLeft.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.turnArrayImplement = this.turnArrayImplement.bind(this);
+        this.merge = this.merge.bind(this);
         this.NewBlock();
         this.NewBlock();
     }
@@ -75,7 +76,6 @@ class Board extends Component {
                 [newClassNa, newWord, point] = this.moveLeft([...this.state.classNa], [...this.state.word]);
                 break;
             case 38: //up
-                //this.moveUp2();
                 [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 3);
                 [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
                 [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 1);
@@ -199,6 +199,7 @@ class Board extends Component {
         arr2[X][Y] = 'block' + arr[X][Y];
         arr[x][y] = 0;
         arr2[x][y] = 'block0';
+        return [arr, arr2];
     }
 
     render() {
@@ -206,30 +207,13 @@ class Board extends Component {
             <div className="background">
                 <table id='board'>
                     <tbody>
-                        <tr>
-                            <td className={this.state.classNa[0][0]}>{this.state.word[0][0]}</td>
-                            <td className={this.state.classNa[0][1]}>{this.state.word[0][1]}</td>
-                            <td className={this.state.classNa[0][2]}>{this.state.word[0][2]}</td>
-                            <td className={this.state.classNa[0][3]}>{this.state.word[0][3]}</td>
-                        </tr>
-                        <tr>
-                            <td className={this.state.classNa[1][0]}>{this.state.word[1][0]}</td>
-                            <td className={this.state.classNa[1][1]}>{this.state.word[1][1]}</td>
-                            <td className={this.state.classNa[1][2]}>{this.state.word[1][2]}</td>
-                            <td className={this.state.classNa[1][3]}>{this.state.word[1][3]}</td>
-                        </tr>
-                        <tr>
-                            <td className={this.state.classNa[2][0]}>{this.state.word[2][0]}</td>
-                            <td className={this.state.classNa[2][1]}>{this.state.word[2][1]}</td>
-                            <td className={this.state.classNa[2][2]}>{this.state.word[2][2]}</td>
-                            <td className={this.state.classNa[2][3]}>{this.state.word[2][3]}</td>
-                        </tr>
-                        <tr>
-                            <td className={this.state.classNa[3][0]}>{this.state.word[3][0]}</td>
-                            <td className={this.state.classNa[3][1]}>{this.state.word[3][1]}</td>
-                            <td className={this.state.classNa[3][2]}>{this.state.word[3][2]}</td>
-                            <td className={this.state.classNa[3][3]}>{this.state.word[3][3]}</td>
-                        </tr>
+                        {Array(4).fill(null).map((e, row) =>
+                            <tr key={row}>
+                                {Array(4).fill(null).map((e, col) =>
+                                    <td className={this.state.classNa[row][col]} key={col}>
+                                        {this.state.word[row][col]}
+                                    </td>)}
+                            </tr>)}
                     </tbody>
                 </table>
             </div>
