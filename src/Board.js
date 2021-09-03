@@ -15,6 +15,7 @@ class Board extends Component {
         this.onKeyDown = this.onKeyDown.bind(this);
         this.turnArrayImplement = this.turnArrayImplement.bind(this);
         this.merge = this.merge.bind(this);
+        this.move = this.move.bind(this);
         this.NewBlock();
         this.NewBlock();
     }
@@ -115,7 +116,6 @@ class Board extends Component {
             //보드 판이 가득 차면 alert 띄우기
             alert("게임 종료: 보드가 가득 찼습니다!!");
         }
-
     }
 
     //move blocks function
@@ -132,13 +132,7 @@ class Board extends Component {
                     const idx = c * 2;
                     if (newClassNa[i][idx] !== 'block0') {
                         // 병합
-                        newWord[i][idx] *= 2;
-                        newClassNa[i][idx] = 'block' + newWord[i][idx];
-                        // 초기화
-                        newWord[i][idx + 1] = 0;
-                        newClassNa[i][idx + 1] = 'block0';
-                        //점수 추가
-                        point += newWord[i][idx];
+                        point += this.merge(newWord, newClassNa, i, idx, i, idx + 1);
                     }
                 }
             }
@@ -154,11 +148,8 @@ class Board extends Component {
                     }
                     // left = j보다 작은 채워진 가장 가까운 blocK의 col index
                     if (newClassNa[i][j] === newClassNa[i][left]) {
-                        newWord[i][left] *= 2;
-                        newClassNa[i][left] = 'block' + newWord[i][left];
-                        newWord[i][j] = 0;
-                        newClassNa[i][j] = 'block0';
-                        point += newWord[i][left];
+                        //병합
+                        point += this.merge(newWord, newClassNa, i, left, i, j);
                         break;
                     }
                 }
@@ -172,10 +163,7 @@ class Board extends Component {
                 if (newClassNa[i][j] === 'block0') continue;
                 // 왼쪽 끝이 비었으면 현재값 넣어주기
                 if (newClassNa[i][0] === 'block0') {
-                    newClassNa[i][0] = newClassNa[i][j];
-                    newWord[i][0] = newWord[i][j];
-                    newClassNa[i][j] = 'block0';
-                    newWord[i][j] = 0;
+                    this.move(newClassNa, newWord, i, 0, j);
                     continue;
                 }
                 for (left = j - 1; left >= 0; left--) {
@@ -183,23 +171,26 @@ class Board extends Component {
                 }
                 // left = 왼쪽 중에 비어 있지 않은 가장 큰 index
                 if (left !== j - 1) {
-                    newClassNa[i][left + 1] = newClassNa[i][j];
-                    newWord[i][left + 1] = newWord[i][j];
-                    newClassNa[i][j] = 'block0';
-                    newWord[i][j] = 0;
+                    this.move(newClassNa, newWord, i, left + 1, j);
                 }
             }
         }
         return [newClassNa, newWord, point];
     }
 
-
     merge(arr, arr2, X, Y, x, y) {
         arr[X][Y] *= 2;
         arr2[X][Y] = 'block' + arr[X][Y];
         arr[x][y] = 0;
         arr2[x][y] = 'block0';
-        return [arr, arr2];
+        return arr[X][Y];
+    }
+
+    move(newClassNa, newWord, X, Y, y) {
+        newClassNa[X][Y] = newClassNa[X][y];
+        newWord[X][Y] = newWord[X][y];
+        newClassNa[X][y] = 'block0';
+        newWord[X][y] = 0;
     }
 
     render() {
