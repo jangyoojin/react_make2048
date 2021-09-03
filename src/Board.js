@@ -30,8 +30,14 @@ class Board extends Component {
         } while (this.state.classNa[i][j] !== 'block0')
         const classNameUpdate = [...this.state.classNa];
         const wordUpdate = [...this.state.word];
-        classNameUpdate[i][j] = 'block2';
-        wordUpdate[i][j] = 2;
+        let twoOrfour = getRandom(0, 11);
+        if (twoOrfour === 10) {
+            classNameUpdate[i][j] = 'block4';
+            wordUpdate[i][j] = 4;
+        } else {
+            classNameUpdate[i][j] = 'block2';
+            wordUpdate[i][j] = 2;
+        }
         this.setState({ classNa: classNameUpdate });
         this.setState({ word: wordUpdate });
     }
