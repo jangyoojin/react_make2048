@@ -16,6 +16,7 @@ class Board extends Component {
         this.turnArrayImplement = this.turnArrayImplement.bind(this);
         this.merge = this.merge.bind(this);
         this.move = this.move.bind(this);
+        this.checkMove = this.checkMove.bind(this);
         this.NewBlock();
         this.NewBlock();
     }
@@ -77,34 +78,38 @@ class Board extends Component {
 
     //block moving function
     moveBlocks(e) {
-        let newClassNa, newWord, point;
+        let newClassNa, newWord, point, check;
         switch (e.keyCode) {
             case 37://left
-                [newClassNa, newWord, point] = this.moveLeft([...this.state.classNa], [...this.state.word]);
+                check = this.checkMove([...this.state.classNa]);
+                if (check) [newClassNa, newWord, point] = this.moveLeft([...this.state.classNa], [...this.state.word]);
+                console.log('left')
                 break;
             case 38: //up
                 [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 3);
-                [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
+                check = this.checkMove(newClassNa);
+                if (check) [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
                 [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 1);
+                console.log('up');
                 break;
             case 39: //right
                 // this.moveRight();
                 [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 2);
-                [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
+                check = this.checkMove(newClassNa);
+                if (check) [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
                 [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 2);
                 break;
             case 40: //down
                 //this.moveDown();
                 [newClassNa, newWord] = this.turnArray([...this.state.classNa], [...this.state.word], 1);
-                [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
+                check = this.checkMove(newClassNa);
+                if (check) [newClassNa, newWord, point] = this.moveLeft(newClassNa, newWord);
                 [newClassNa, newWord] = this.turnArray(newClassNa, newWord, 3);
                 break;
             default:
                 return;
         }
-        this.setState({ classNa: newClassNa });
-        this.setState({ word: newWord });
-        this.props.calcScore(point);
+        //보드판이 가득 찼는지 확인
         let isFull = true;
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
@@ -114,14 +119,92 @@ class Board extends Component {
                 }
             }
         }
-        if (!isFull) {
-            this.NewBlock();
-        } else {
+        //이동할 블럭이 있다면 setState
+        if (check) {
+            this.setState({ classNa: newClassNa });
+            this.setState({ word: newWord });
+            this.props.calcScore(point);
+            if (!isFull) this.NewBlock();
+        }
+        //2048 만들어졌는지 체크하기
+        let finish = false;
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                if (newClassNa[i][j] === 'block2048') {
+                    isFull = true;
+                    break;
+                }
+            }
+        }
+        if (finish) {
+            this.props.updateBest();
+            alert("게임 종료: 2048을 완성했습니다!!");
+        }
+        //보드판이 가득 찼는데 더이상 이동할 수 없다면 게임 종료
+        if (!check && isFull) {
             //best 점수 업데이트
             this.props.updateBest();
             //보드 판이 가득 차면 alert 띄우기
             alert("게임 종료: 보드가 가득 찼습니다!!");
         }
+    }
+
+    checkMove(newClassNa) {
+        let check = false;
+        //병합
+        for (var i = 0; i < 4; i++) {
+            //한 줄에 병합을 두 번 하는 경우
+            if (newClassNa[i][0] === newClassNa[i][1] && newClassNa[i][2] === newClassNa[i][3]) {
+                for (let c = 0; c < 2; c++) {
+                    const idx = c * 2;
+                    if (newClassNa[i][idx] !== 'block0') {
+                        // 병합
+                        check = true;
+                        return check;
+                    }
+                }
+            }
+            //한 줄에 병합 한 번 하는 경우 + 병합하는 것이 없는 경우
+            else {
+                for (var j = 1; j < 4; j++) {
+                    var left;
+                    //빈칸이면 패스하기
+                    if (newClassNa[i][j] === 'block0') continue;
+                    // 중간에 빈 블럭이 있는지 확인
+                    for (left = j - 1; left >= 0; left--) {
+                        if (newClassNa[i][left] !== 'block0' || left === 0) break;
+                    }
+                    // left = j보다 작은 채워진 가장 가까운 blocK의 col index
+                    if (newClassNa[i][j] === newClassNa[i][left]) {
+                        //병합
+                        check = true;
+                        return check;
+                    }
+                }
+            }
+        }
+        //이동
+        for (let i = 0; i < 4; i++) {
+            for (let j = 1; j < 4; j++) {
+                let left;
+                // 빈칸이면 이동x
+                if (newClassNa[i][j] === 'block0') continue;
+                // 왼쪽 끝이 비었으면 현재값 넣어주기
+                if (newClassNa[i][0] === 'block0') {
+                    check = true;
+                    return check;
+                }
+                for (left = j - 1; left >= 0; left--) {
+                    if (newClassNa[i][left] !== 'block0' || left === 0) break;
+                }
+                // left = 왼쪽 중에 비어 있지 않은 가장 큰 index
+                if (left !== j - 1) {
+                    check = true;
+                    return check;
+                }
+            }
+        }
+        return check;
     }
 
     //move blocks function
@@ -141,6 +224,7 @@ class Board extends Component {
                         point += this.merge(newWord, newClassNa, i, idx, i, idx + 1);
                     }
                 }
+                console.log(newClassNa);
             }
             //한 줄에 병합 한 번 하는 경우 + 병합하는 것이 없는 경우
             else {
@@ -160,6 +244,7 @@ class Board extends Component {
                     }
                 }
             }
+            console.log('move');
         }
         //이동
         for (let i = 0; i < 4; i++) {

@@ -78,10 +78,12 @@
 .block1024 {
     background-color: #edc53f;
     color: #f5f5f5;
+    font-size: 37px;
 }
 .block2048 {
     background-color: #edc22d;
     color: #f5f5f5;
+    font-size: 37px;
 }
 
 #board {
